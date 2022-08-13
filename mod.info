@@ -1,0 +1,6 @@
+name=Example Mod.info
+id=example_mod_info
+modversion=1.0.0
+poster=example_mod_info.png
+description=Example Mod Info
+url=https://github.com/drandarov-io/zomboid-sdk
