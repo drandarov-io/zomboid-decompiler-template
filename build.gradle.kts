@@ -1,5 +1,3 @@
-import io.pzstorm.capsid.zomboid.ZomboidTasks
-
 plugins {
     java
     id("io.pzstorm.capsid") version "0.4.2"

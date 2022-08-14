@@ -2,6 +2,8 @@
 
 This project is a template for decompiling Project Zomboid source files and using them in a mod. Knowledge of Gradle is expected.
 
+With this setup this project gathers the decompiled Project Zomboid source files and the mods themselves are seperate. __Step 1__ and __2__ are in this repository and __Step 3__ is in a seperate repository.
+
 ## Guide
 
 ### 1. Set `gameDir`
@@ -9,6 +11,7 @@ This project is a template for decompiling Project Zomboid source files and usin
 Set `gameDir` in the `local.properties` file to the location of your game files.
 
 Example:
+
 ```properties
 gameDir=D:/Games/SteamLibrary/steamapps/common/ProjectZomboid
 ```
@@ -48,11 +51,12 @@ dependencies {
     implementation(files(zomboidlua))
 }
 ```
+
 Create the gradle.properties file with the following content:
 
 ```properties
-zomboidjar = ../zomboid-decompiler-template/lib/zomboid-sources.jar
-zomboidlua = ../zomboid-decompiler-template/lib/zdoc-lua-41.73.jar
+zomboidjar=../zomboid-decompiler-template/lib/zomboid-sources.jar
+zomboidlua=../zomboid-decompiler-template/lib/zdoc-lua-41.73.jar
 ```
 
 The paths need to point to the jars generated in the second step.
