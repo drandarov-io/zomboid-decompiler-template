@@ -43,20 +43,83 @@ plugins {
 }
 
 val zomboidjar: String by project
+val zomboidjarsources: String by project
 val zomboidlua: String by project
-
+val zomboidmedia: String by project
 
 dependencies {
     implementation(files(zomboidjar))
+    implementation(files(zomboidjarsources))
     implementation(files(zomboidlua))
+    implementation(files(zomboidmedia))
 }
+
+sourceSets.create("media") {
+    java.srcDir("media")
+
+    compileClasspath += sourceSets.main.get().compileClasspath
+}
+
+val buildWorkshop by tasks.registering {
+    val buildPath = "$buildDir/workshop/${project.name}"
+    val modPath = "$buildPath/Contents/mods/${project.name}"
+
+    group = "build"
+    outputs.dir("$buildDir/workshop")
+
+    doLast {
+        copy {
+            from("workshop/preview.png", "workshop/workshop.txt")
+            into(buildPath)
+        }
+
+        copy {
+            from("workshop/poster.png", "workshop/mod.info")
+            into(modPath)
+        }
+        copy {
+            from("media")
+            into("$modPath/media")
+        }
+    }
+}
+
+val localDeploy by tasks.registering {
+    val localPath = "${System.getProperties()["user.home"]}/Zomboid/Workshop"
+
+    group = "build"
+    outputs.dir("$localPath/${project.name}")
+
+    dependsOn(buildWorkshop)
+
+    doLast {
+        copy {
+            from(buildWorkshop.get().outputs.files)
+            into(localPath)
+        }
+    }
+}
+
+
+val localUndeploy by tasks.registering {
+    val localPath = "${System.getProperties()["user.home"]}/Zomboid/Workshop"
+
+    group = "build"
+
+    doLast {
+        delete(localDeploy.get().outputs.files)
+    }
+}
+
 ```
 
 Create the gradle.properties file with the following content:
 
 ```properties
-zomboidjar=../zomboid-decompiler-template/lib/zomboid-sources.jar
-zomboidlua=../zomboid-decompiler-template/lib/zdoc-lua-41.73.jar
+zomboidjar = ../zomboid-decompiler-template/lib/zomboid.jar
+zomboidjarsources = ../zomboid-decompiler-template/lib/zomboid-sources.jar
+zomboidlua = ../zomboid-decompiler-template/lib/zdoc-lua-41.73.jar
+zomboidmedia = D:/Games/SteamLibrary/steamapps/common/ProjectZomboid/media
 ```
 
 The paths need to point to the jars generated in the second step.
@@ -64,3 +127,8 @@ The paths need to point to the jars generated in the second step.
 Now you have a mod project ready to use with IntelliSense support:
 
 ![Screenshot of code with working documentation](./docs/result.png)
+
+### 4. Notes
+
+- `preview.png` must be 256x256 pixels
+- After using the `localDeploy` task, you can upload your mod in-game, in the main menu when clicking `Workshop`.
