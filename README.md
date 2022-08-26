@@ -38,6 +38,10 @@ url=https://github.com/drandarov-io/zomboid-decompiler-template
 Create a `build.gradle.kts` with the following content:
 
 ```kotlin
+//----------------------------------------------------------------------------------------------------------------------
+// Project Setup
+//----------------------------------------------------------------------------------------------------------------------
+
 plugins {
     java
 }
@@ -60,9 +64,20 @@ sourceSets.create("media") {
     compileClasspath += sourceSets.main.get().compileClasspath
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+// Tasks
+//----------------------------------------------------------------------------------------------------------------------
+
+val projectName = if (project.hasProperty("betaBuild")) "${project.name}-beta" else project.name
+
+val buildPath = "$buildDir/workshop/${projectName}"
+val modPath = "$buildPath/Contents/mods/${projectName}"
+
+val localPath = "${System.getProperties()["user.home"]}/Zomboid/Workshop"
+val localModPath = "$localPath/${projectName}"
+
 val buildWorkshop by tasks.registering {
-    val buildPath = "$buildDir/workshop/${project.name}"
-    val modPath = "$buildPath/Contents/mods/${project.name}"
 
     group = "build"
     outputs.dir("$buildDir/workshop")
@@ -85,12 +100,18 @@ val buildWorkshop by tasks.registering {
 }
 
 val localDeploy by tasks.registering {
-    val localPath = "${System.getProperties()["user.home"]}/Zomboid/Workshop"
 
     group = "build"
-    outputs.dir("$localPath/${project.name}")
+    outputs.dir("$localPath/${projectName}")
 
     dependsOn(buildWorkshop)
+
+    doFirst {
+        if (project.hasProperty("betaBuild")) {
+            File("$modPath/mod.info").writeText(File("$modPath/mod.info").readText().replace("id=${project.name}", "id=$projectName"))
+            File("$modPath/mod.info").writeText(File("$modPath/mod.info").readText().replaceFirst("(name=.*)".toRegex(), "$1 [Beta]"))
+        }
+    }
 
     doLast {
         copy {
@@ -128,7 +149,12 @@ Now you have a mod project ready to use with IntelliSense support:
 
 ![Screenshot of code with working documentation](./docs/result.png)
 
+You can also append `-PbetaBuild` to your Gradle call to enable the beta build, which appends `"beta"` the local `id=` and `name=` in the `mod.info` file:
+
+![Screenshot of beta build features](./docs/betaBuild.png)
+
 ### 4. Notes
 
 - `preview.png` must be 256x256 pixels
 - After using the `localDeploy` task, you can upload your mod in-game, in the main menu when clicking `Workshop`.
+- If you get the error `result=2` during upload just try again at a later time. The Steam Servers are likely having problems.  
