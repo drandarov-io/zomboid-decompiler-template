@@ -112,7 +112,7 @@ val localDeploy by tasks.registering {
 
     doFirst {
         if (project.hasProperty("betaBuild")) {
-            File("$modPath/mod.info").writeText(File("$modPath/mod.info").readText().replace("id=${project.name}", "id=$projectName"))
+            File("$modPath/mod.info").writeText(File("$modPath/mod.info").readText().replace("(id=.*)".toRegex(), "$1-beta"))
             File("$modPath/mod.info").writeText(File("$modPath/mod.info").readText().replaceFirst("(name=.*)".toRegex(), "$1 [Beta]"))
         }
     }
