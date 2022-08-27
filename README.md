@@ -84,13 +84,17 @@ val buildWorkshop by tasks.registering {
 
     doLast {
         copy {
-            from("workshop/preview.png", "workshop/workshop.txt")
+            from(if (project.hasProperty("betaBuild")) "workshop/preview_beta.png" else "workshop/preview.png",
+                if (project.hasProperty("betaBuild")) "workshop/workshop_beta.txt" else "workshop/workshop.txt")
             into(buildPath)
+            rename("preview_beta.png", "preview.png")
+            rename("workshop_beta.txt", "workshop.txt")
         }
 
         copy {
-            from("workshop/poster.png", "workshop/mod.info")
+            from(if (project.hasProperty("betaBuild")) "workshop/poster_beta.png" else "workshop/poster.png", "workshop/mod.info")
             into(modPath)
+            rename("poster_beta.png", "poster.png")
         }
         copy {
             from("media")
